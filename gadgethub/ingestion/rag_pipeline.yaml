@@ -1,0 +1,39 @@
+splitter:
+  strategy: "recursive"
+  # Staged single-product files run up to ~850 chars (see rag_pipeline.ipynb
+  # section 2). chunk_size must stay above that so every product stays in ONE chunk —
+  # otherwise a retrieved chunk could carry only half a product's specs, which is exactly
+  # the kind of partial context that leads to hallucinated answers.
+  chunk_size: 1200
+  chunk_overlap: 0
+
+embeddings:
+  provider: "openai"
+  model: "text-embedding-3-small"
+  api_key: "${OPENAI_API_KEY}"
+
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  api_key: "${OPENAI_API_KEY}"
+
+vectorstore:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+  collection_name: "gadgethub-catalog-openai-qdrant"
+  use_sparse: true
+  force_recreate: false
+
+retriever:
+  search_type: "hybrid"
+  top_k: 5
+  auto_filter: false
+
+metadata:
+  config_file: "rag_metadata.yaml"
+
+logging:
+  level: "INFO"
+  console_output: true
+  colored: false
+  log_file: "./.log/ragwire.log"

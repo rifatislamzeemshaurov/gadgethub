@@ -1,0 +1,17 @@
+[project]
+name = "gadgethub-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.43.78",
+    "fastapi>=0.141.1",
+    "python-dotenv>=1.2.3",
+    "python-multipart>=0.0.32",
+    "uvicorn>=0.52.4",
+    "ragwire>=1.2.9",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langgraph>=0.2.0",
+    "qdrant-client>=1.11.0",
+    "fastembed>=0.4.0",
+]

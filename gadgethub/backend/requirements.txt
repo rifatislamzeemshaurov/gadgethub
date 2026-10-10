@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-dotenv
+python-multipart
+boto3
+ragwire
+langchain-core
+langchain-openai
+langgraph
+qdrant-client
+fastembed

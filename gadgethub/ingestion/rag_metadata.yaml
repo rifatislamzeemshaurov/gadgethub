@@ -1,0 +1,203 @@
+# ==========================================================
+# hardware_catalog_metadata.yaml
+# ==========================================================
+version: "2.0"
+
+description: >
+  Extract structured metadata from Electronic Hardware Catalog PDFs.
+  Every input chunk represents exactly ONE product's complete profile.
+  Copy every field exactly as written in the document, character for character.
+  Never infer missing values. If a field is not present in that chunk, return null.
+
+prompt: |
+  You are extracting structured metadata for exactly ONE hardware product profile from a single, isolated document chunk. Nothing else exists for this task — no other product, no other chunk, no prior knowledge of electronics.
+
+  CRITICAL RULES:
+  1. Use ONLY the text in this chunk. Never use information from another product, another chunk, training data, or general knowledge about the brand or product.
+  2. Copy every value character-for-character as printed: numbers, currency symbols, units, punctuation. Do not paraphrase, summarize, round, reformat, or "correct" anything.
+  3. A field is null ONLY when it is genuinely absent from this chunk, or shown as "-". Never leave a field null out of uncertainty — reread the chunk before deciding it is missing. Never invent a value to fill a null.
+  4. Determine the product category based on the chunk content and output exactly one of: camera, laptop, smart_tv, smartwatch. Use it to decide which category-specific fields apply:
+       - camera     -> sensor_ram, storage_cards, graphics_engine, key_specs, camera_description
+       - laptop     -> memory_ram, storage_ssd, graphics_card, core_architecture
+       - smart_tv   -> screen_size, resolution_standard, display_tech_specialty
+       - smartwatch -> memory_and_storage, graphics_coprocessor, sensor_array, architectural_description, embedding_hash, repository_index
+     Every category-specific field that does NOT belong to this chunk's category must be null — do not guess a plausible value for it.
+  5. If the same label appears to have no value directly beneath/after it in the chunk, return null for that field rather than reusing a nearby value.
+  6. Output must satisfy the field schema exactly — no extra commentary.
+
+rules:
+  - Each chunk contains exactly one hardware product profile.
+  - Never use information from another chunk, another product, or prior electronics knowledge.
+  - Never guess, infer, autocomplete, or "correct" a value not literally printed in the chunk.
+  - Never rewrite, paraphrase, or summarize text.
+  - Preserve price symbols, numbers, and punctuation exactly as written.
+  - If a field is missing, "-", or not applicable to the hardware category, return null.
+  - Output valid JSON only — no markdown fences, no preamble, no trailing commentary.
+
+fields:
+  - name: category
+    type: string
+    required: true
+    description: >
+      Determine the product category based on the chunk content. Must be exactly one of: camera, laptop, smart_tv, smartwatch.
+
+  - name: brand_or_make
+    type: string
+    required: true
+    description: >
+      Copy the exact text indicating the brand. Look for "Brand / Make", "MANUFACTURER / BRAND", or the standalone brand name written directly above the product name.
+
+  - name: product_name
+    type: string
+    required: true
+    description: >
+      Copy the exact product name. Do not include the brand name if it is listed separately. Drop any leading list numbers.
+
+  - name: price
+    type: string
+    required: true
+    description: >
+      Copy the exact value indicating the price (or "RETAIL PRICE (USD)"), including the currency symbol. Example: "$6,498.00"
+
+  # --- Camera Specific Fields ---
+  - name: sensor_ram
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is camera: copy the exact value from "Sensor/RAM". Null for other categories.
+
+  - name: storage_cards
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is camera: copy the exact value from "Storage (SSD/Cards)". Null for other categories.
+
+  - name: graphics_engine
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is camera: copy the exact value from "Graphics/Engine". Null for other categories.
+
+  - name: key_specs
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is camera: copy the exact value from "Key Specs". Null for other categories.
+
+  - name: camera_description
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is camera: copy the exact descriptive paragraph found below the Key Specs. Null for other categories.
+
+  # --- Laptop Specific Fields ---
+  - name: memory_ram
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is laptop: copy the exact value from "Memory (RAM)". Null for other categories.
+
+  - name: storage_ssd
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is laptop: copy the exact value from "Storage (SSD)". Null for other categories.
+
+  - name: graphics_card
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is laptop: copy the exact value from "Graphics Card". Null for other categories.
+
+  - name: core_architecture
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is laptop: copy the exact value from "Core Architecture". Null for other categories.
+
+  # --- Smart TV Specific Fields ---
+  - name: screen_size
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smart_tv: copy the exact value from "Screen Size". Null for other categories.
+
+  - name: resolution_standard
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smart_tv: copy the exact value from "Resolution Standard". Null for other categories.
+
+  - name: display_tech_specialty
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smart_tv: copy the exact value from "Display Tech & Specialty". Null for other categories.
+
+  # --- Smartwatch Specific Fields ---
+  - name: memory_and_storage
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smartwatch: copy the exact value from "MEMORY & STORAGE (RAM / SSD)". Null for other categories.
+
+  - name: graphics_coprocessor
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smartwatch: copy the exact value from "GRAPHICS / COPROCESSOR ASIC". Null for other categories.
+
+  - name: sensor_array
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smartwatch: copy the exact value from "SENSOR ARRAY & CONNECTIVITY". Null for other categories.
+
+  - name: architectural_description
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smartwatch: copy the exact text under "ARCHITECTURAL DESCRIPTION & FEATURE SET". Null for other categories.
+
+  - name: embedding_hash
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smartwatch: copy the exact hash value next to "EMBEDDING HASH:". Null for other categories.
+
+  - name: repository_index
+    type: string
+    required: false
+    nullable: true
+    description: >
+      Only when category is smartwatch: copy the exact index value next to "REPOSITORY INDEX:". Null for other categories.
+
+output:
+  format: json
+  one_object_per_chunk: true
+  allow_additional_fields: false
+
+validation:
+  reject_if_multiple_products_detected: true
+  reject_if_missing_required_fields: false
+  convert_dash_to_null: true
+  trim_leading_trailing_whitespace: true
+  preserve_internal_spacing: true
+  preserve_symbols: true

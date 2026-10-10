@@ -1,0 +1,45 @@
+splitter:
+  strategy: "recursive"
+  # Staged single-product files run up to ~850 chars (see
+  # ../ingestion/rag_pipeline.ipynb section 2). chunk_size must stay above
+  # that so every product stays in ONE chunk — otherwise a retrieved chunk
+  # could carry only half a product's specs, which is exactly the kind of
+  # partial context that leads to hallucinated answers.
+  chunk_size: 1200
+  chunk_overlap: 0
+
+embeddings:
+  provider: "openai"
+  model: "text-embedding-3-small"
+  api_key: "${OPENAI_API_KEY}"
+
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  api_key: "${OPENAI_API_KEY}"
+
+vectorstore:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+  collection_name: "gadgethub-catalog-openai-qdrant"
+  use_sparse: true
+  # IMPORTANT: once the catalog has been ingested this must stay false —
+  # RAGWire.__init__ deletes + recreates the collection on startup whenever
+  # this is true, which would wipe the live catalog every time the API
+  # process restarts. Only flip to true, run a real re-ingest via
+  # ../ingestion/rag_pipeline.ipynb, and flip it back.
+  force_recreate: false
+
+retriever:
+  search_type: "hybrid"
+  top_k: 5
+  auto_filter: false
+
+metadata:
+  config_file: "metadata.yaml"
+
+logging:
+  level: "INFO"
+  console_output: true
+  colored: false
+  log_file: "./.log/gadgethub.log"
