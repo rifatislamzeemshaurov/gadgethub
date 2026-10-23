@@ -1,5 +1,36 @@
-# Secrets - never commit
+# ---- Secrets: never commit ---------------------------------------------------
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*credentials*
 
-# Editor settings
+# ---- Python ------------------------------------------------------------------
+**/.venv/
+**/__pycache__/
+*.pyc
+
+# ---- Node / Next.js build output ----------------------------------------------
+node_modules/
+**/.next/
+**/out/
+*.tsbuildinfo
+
+# ---- Local data: catalog PDFs, conversation memory, logs ----------------------
+gadgethub/data/
+gadgethub/memory/*.json
+**/.log/
+
+# ---- Terraform state and caches ------------------------------------------------
+**/.terraform/
+*.tfstate
+*.tfstate.*
+**/terraform.tfstate.d/
+*.tfplan
+
+# ---- OS / editors --------------------------------------------------------------
+.DS_Store
+Thumbs.db
 .vscode/
+.idea/

@@ -1,2 +1,10 @@
+# Normalise line endings so the scripts run on every OS
 * text=auto
-*.sh text eol=lf
+
+*.sh   text eol=lf
+*.ps1  text eol=crlf
+
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.pdf  binary
